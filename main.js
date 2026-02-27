@@ -8,6 +8,33 @@ const fs = require("fs");
 // ============================================================
 function getShiftDuration(startTime, endTime) {
     // TODO: Implement this function
+    function getShiftDuration(startTime, endTime) {
+    function toSeconds(timeStr) {
+        const [time, modifier] = timeStr.trim().split(' ');
+        let [hours, minutes, seconds] = time.split(':').map(Number);
+
+        if (modifier.toLowerCase() === 'pm' && hours !== 12) hours += 12;
+        if (modifier.toLowerCase() === 'am' && hours === 12) hours = 0;
+
+        return hours * 3600 + minutes * 60 + seconds;
+    }
+
+    let startSeconds = toSeconds(startTime);
+    let endSeconds = toSeconds(endTime);
+
+    // Handle overnight shifts
+    if (endSeconds <= startSeconds) {
+        endSeconds += 24 * 3600;
+    }
+
+    const diff = endSeconds - startSeconds;
+
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+
+    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 }
 
 // ============================================================
@@ -18,7 +45,7 @@ function getShiftDuration(startTime, endTime) {
 // ============================================================
 function getIdleTime(startTime, endTime) {
     // TODO: Implement this function
-}
+} 
 
 // ============================================================
 // Function 3: getActiveTime(shiftDuration, idleTime)
