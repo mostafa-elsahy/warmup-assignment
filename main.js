@@ -35,7 +35,7 @@ function getShiftDuration(startTime, endTime) {
 
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
-}
+} //Test 123
 
 // ============================================================
 // Function 2: getIdleTime(startTime, endTime)
