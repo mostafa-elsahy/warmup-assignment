@@ -38,8 +38,6 @@ function formatSecondsToTime(totalSeconds) {
 // ============================================================
 function getShiftDuration(startTime, endTime) {
     // TODO: Implement this function
-    function getShiftDuration(startTime, endTime) {
-
     let startSeconds = toSeconds(startTime);
     let endSeconds = toSeconds(endTime);
 
@@ -56,7 +54,6 @@ function getShiftDuration(startTime, endTime) {
 
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
-}
 
 // ============================================================
 // Function 2: getIdleTime(startTime, endTime)
@@ -66,8 +63,6 @@ function getShiftDuration(startTime, endTime) {
 // ============================================================
 function getIdleTime(startTime, endTime) {
     // TODO: Implement this function
-    function getIdleTime(startTime, endTime) {
-
     const startSeconds = toSeconds(startTime);
     const endSeconds = toSeconds(endTime);
 
@@ -89,7 +84,6 @@ function getIdleTime(startTime, endTime) {
     }
 
     return formatSecondsToTime(idleSeconds);
-}
 } 
 
 // ============================================================
