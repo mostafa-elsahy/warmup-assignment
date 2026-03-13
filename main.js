@@ -96,9 +96,7 @@ function getActiveTime(shiftDuration, idleTime) {
     // TODO: Implement this function
     const shiftSeconds = toSeconds(shiftDuration);
     const idleSeconds = toSeconds(idleTime);
-
     const activeSeconds = shiftSeconds - idleSeconds;
-
     return formatSecondsToTime(activeSeconds);
 }
 
@@ -207,6 +205,23 @@ function addShiftRecord(textFile, shiftObj) {
 // ============================================================
 function setBonus(textFile, driverID, date, newValue) {
     // TODO: Implement this function
+    const content = fs.readFileSync(textFile, "utf-8").trim();
+    if (!content) return; //empty file, nothing to do
+    const lines = content.split("\n");
+    const header = lines[0];
+    let records = [];
+    for (let i = 1; i < lines.length; i++) {
+        records.push(lines[i].split(","));
+    }
+
+    for (let i = 0; i < records.length; i++) {
+        if (records[i][0] === driverID && records[i][2] === date) {
+            records[i][9] = newValue;
+            break;
+        }
+    }
+    const newFileContent = [header, ...records.map(r => r.join(","))].join("\n");
+    fs.writeFileSync(textFile, newFileContent, "utf-8");
 }
 
 // ============================================================
@@ -218,6 +233,31 @@ function setBonus(textFile, driverID, date, newValue) {
 // ============================================================
 function countBonusPerMonth(textFile, driverID, month) {
     // TODO: Implement this function
+    const content = fs.readFileSync(textFile, "utf-8").trim();
+    if (!content) return -1;
+    const lines = content.split("\n");
+    const header = lines[0];
+    let records = [];
+    for (let i = 1; i < lines.length; i++) {
+        records.push(lines[i].split(","));
+    }
+
+    const targetMonth = parseInt(month, 10);
+    let found = false;
+    let c = 0;
+    for (const r of records) {
+        const [id, , dateStr, , , , , , , hasBonus] = r;
+
+        if (id === driverID) {
+            found = true;
+
+            const monthOfRecord = parseInt(dateStr.split("-")[1], 10);
+            if (monthOfRecord === targetMonth && (hasBonus === "true" || hasBonus === true)) {
+                c++;
+            }
+        }
+    }
+    return found ? c : -1;
 }
 
 // ============================================================
@@ -229,6 +269,32 @@ function countBonusPerMonth(textFile, driverID, month) {
 // ============================================================
 function getTotalActiveHoursPerMonth(textFile, driverID, month) {
     // TODO: Implement this function
+    const content = fs.readFileSync(textFile, "utf-8").trim();
+    if (!content) return -1;
+    const lines = content.split("\n");
+    const header = lines[0];
+    let records = [];
+    for (let i = 1; i < lines.length; i++) {
+        records.push(lines[i].split(","));
+    }
+
+    let totalSeconds = 0;
+    let found = false;
+    for (const r of records) {
+        const [id, , dateStr, , , , , activeTime] = r;
+
+        if (id === driverID) {
+            found = true;
+
+            const monthOfRecord = parseInt(dateStr.split("-")[1], 10);
+            if (monthOfRecord === month) {
+                totalSeconds += toSeconds(activeTime);
+            }
+        }
+    }
+    if (!found) 
+        return "0:00:00";
+    return formatSecondsToTime(totalSeconds);
 }
 
 // ============================================================
