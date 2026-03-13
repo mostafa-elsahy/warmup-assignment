@@ -110,6 +110,16 @@ function getActiveTime(shiftDuration, idleTime) {
 // ============================================================
 function metQuota(date, activeTime) {
     // TODO: Implement this function
+    const [year, month, day] = date.split("-").map(Number);
+    let quota;
+
+    if (year === 2025 && month === 4 && day >= 10 && day <= 30) {
+        quota = "6:00:00";
+    } else {
+        quota = "8:24:00";
+    }
+
+    return toSeconds(activeTime) >= toSeconds(quota);
 }
 
 // ============================================================
@@ -120,6 +130,7 @@ function metQuota(date, activeTime) {
 // ============================================================
 function addShiftRecord(textFile, shiftObj) {
     // TODO: Implement this function
+    
 }
 
 // ============================================================
