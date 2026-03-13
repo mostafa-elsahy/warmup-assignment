@@ -133,25 +133,26 @@ function metQuota(date, activeTime) {
 // ============================================================
 function addShiftRecord(textFile, shiftObj) {
     // TODO: Implement this function
-    const content = fs.readFileSync(textFile, "utf-8").trim();
-    const lines = content.split("\n");
+    const content = fs.readFileSync(textFile, "utf-8");
+    const lines = content.trim().split("\n");
     const header = lines[0];
-    
     let records = [];
-    
     for (let i = 1; i < lines.length; i++) {
-        records.push(lines[i].split(","));
+        if (lines[i].trim() !== "") {
+            records.push(lines[i].split(",").map(v => v.trim()));
+        }
     }
-    
-    const id = shiftObj.driverID;
-    const date = shiftObj.date;
-    
-    // Check duplicate
+
+    const id = shiftObj.driverID.trim();
+    const date = shiftObj.date.trim();
+
+    //check duplicates
     for (let r of records) {
-        if (r[0] === id && r[2] === date) {
+        if (r[0].trim() === id && r[2].trim() === date) {
             return {};
         }
     }
+
     const shiftDuration = getShiftDuration(shiftObj.startTime, shiftObj.endTime);
     const idleTime = getIdleTime(shiftObj.startTime, shiftObj.endTime);
     const activeTime = getActiveTime(shiftDuration, idleTime);
@@ -173,7 +174,9 @@ function addShiftRecord(textFile, shiftObj) {
     let pos = -1;
 
     for (let i = 0; i < records.length; i++) {
-        if (records[i][0] === id) pos = i;
+        if (records[i][0].trim() === id) {
+            pos = i;
+        }
     }
 
     if (pos !== -1) {
@@ -182,7 +185,9 @@ function addShiftRecord(textFile, shiftObj) {
         records.push(newRecord);
     }
 
-    const newFileContent = [header, ...records.map(r => r.join(","))].join("\n");
+    const newFileContent =
+        [header, ...records.map(r => r.join(","))].join("\n") + "\n";
+
     fs.writeFileSync(textFile, newFileContent, "utf-8");
 
     return {
@@ -350,7 +355,7 @@ function getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, mont
     totalSeconds -= bonusCount * 2 * 3600;
     if (totalSeconds < 0) totalSeconds = 0;
 
-    return returnToFormat(totalSeconds);
+    return formatSecondsToTime(totalSeconds);
 }
 
 // ============================================================
