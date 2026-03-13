@@ -130,7 +130,71 @@ function metQuota(date, activeTime) {
 // ============================================================
 function addShiftRecord(textFile, shiftObj) {
     // TODO: Implement this function
+    const content = fs.readFileSync(textFile, "utf-8").trim();
+    const lines = content.split("\n");
+    const header = lines[0];
     
+    let records = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        records.push(lines[i].split(","));
+    }
+    
+    const id = shiftObj.driverID;
+    const date = shiftObj.date;
+    
+    // Check duplicate
+    for (let r of records) {
+        if (r[0] === id && r[2] === date) {
+            return {};
+        }
+    }
+    const shiftDuration = getShiftDuration(shiftObj.startTime, shiftObj.endTime);
+    const idleTime = getIdleTime(shiftObj.startTime, shiftObj.endTime);
+    const activeTime = getActiveTime(shiftDuration, idleTime);
+    const quotaMet = metQuota(shiftObj.date, activeTime);
+
+    const newRecord = [
+        shiftObj.driverID,
+        shiftObj.driverName,
+        shiftObj.date,
+        shiftObj.startTime,
+        shiftObj.endTime,
+        shiftDuration,
+        idleTime,
+        activeTime,
+        quotaMet,
+        false
+    ];
+
+    let pos = -1;
+
+    for (let i = 0; i < records.length; i++) {
+        if (records[i][0] === id) pos = i;
+    }
+
+    if (pos !== -1) {
+        records.splice(pos + 1, 0, newRecord);
+    } else {
+        records.push(newRecord);
+    }
+
+    const newFileContent = [header, ...records.map(r => r.join(","))].join("\n");
+    fs.writeFileSync(textFile, newFileContent, "utf-8");
+
+    return {
+        driverID: newRecord[0],
+        driverName: newRecord[1],
+        date: newRecord[2],
+        startTime: newRecord[3],
+        endTime: newRecord[4],
+        shiftDuration: newRecord[5],
+        idleTime: newRecord[6],
+        activeTime: newRecord[7],
+        metQuota: newRecord[8],
+        hasBonus: newRecord[9]
+    };
+
 }
 
 // ============================================================
